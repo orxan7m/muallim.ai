@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <title>Muallim.AI — Исламский AI-советник</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f2f2f2; }
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 700px; margin: auto; background-color: #f4f4f4; }
     h1 { color: #2e7d32; }
     textarea, button { width: 100%; font-size: 16px; margin-top: 10px; }
-    #answer { white-space: pre-wrap; margin-top: 20px; background: #fff; padding: 10px; border-radius: 8px; }
+    #answer { white-space: pre-wrap; margin-top: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 5px #ccc; }
+    button { background-color: #2e7d32; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; }
+    button:hover { background-color: #256828; }
   </style>
 </head>
 <body>
@@ -23,7 +25,7 @@
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer sk-...ТВОЙ_ТЕСТОВЫЙ_КЛЮЧ...",
+        "Authorization": "Bearer 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",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -31,7 +33,7 @@
         messages: [
           {
             role: "system",
-            content: "Ты исламский советник. Отвечай строго по Корану, Сунне и мнениям достоверных улемов. Если не уверен — скажи об этом."
+            content: "Ты исламский советник. Отвечай строго на основе Корана, Сунны и мнений авторитетных улемов. Не выдумывай. Если не уверен — честно скажи об этом."
           },
           {
             role: "user",
@@ -42,7 +44,7 @@
     });
 
     const data = await res.json();
-    const answer = data?.choices?.[0]?.message?.content || "Ошибка при получении ответа.";
+    const answer = data?.choices?.[0]?.message?.content || "Ошибка: нет ответа.";
     document.getElementById("answer").innerText = answer;
   }
 </script>
