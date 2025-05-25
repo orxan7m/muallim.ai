@@ -49,14 +49,14 @@
   async function ask() {
     const question = document.getElementById("question").value;
 
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const res = await fetch("https://openrouterproxy.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": "Bearer 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",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-r1", // ← или замени на "deepseek-chat"
+        model: "deepseek-chat",
         messages: [
           {
             role: "system",
@@ -71,9 +71,7 @@
     });
 
     const data = await res.json();
-
-    // 👇 Показываем весь ответ API в консоли
-    console.log("Ответ API:", data);
+    console.log("Ответ от AI:", data);
 
     const answer = data?.choices?.[0]?.message?.content;
     document.getElementById("answer").innerText = answer || "Ошибка: ответа нет.";
