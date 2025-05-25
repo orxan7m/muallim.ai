@@ -1,28 +1,24 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import requests
+import os
 
 app = Flask(__name__)
+CORS(app)  # разрешает CORS-запросы
 
-# Разрешаем CORS
-@app.after_request
-def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
-    response.headers["Access-Control-Allow-Methods"] = "POST,OPTIONS"
-    return response
+@app.route('/')
+def home():
+    return 'Muallim.AI API is running.'
 
-@app.route("/ask", methods=["POST", "OPTIONS"])
+@app.route('/ask', methods=['POST'])
 def ask():
-    if request.method == "OPTIONS":
-        return '', 200
-
     data = request.get_json()
     question = data.get("question")
 
     headers = {
-        "Authorization": f"Bearer {openrouter_api_key()}",
+        "Authorization": f"Bearer {os.environ.get('OPENROUTER_API_KEY')}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://orxan7m.github.io/muallim.ai/",
+        "HTTP-Referer": "https://orxan7m.github.io/muallim.ai",  # чтобы OpenRouter принимал
         "X-Title": "Muallim.AI"
     }
 
@@ -40,32 +36,14 @@ def ask():
         ]
     }
 
-try:
-    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
-    result = response.json()
-    
-    print("=== Ответ от OpenRouter ===")
-    print(result)  # <== ВАЖНО: сюда посмотри в логах Render!
-
-    # Надежно получаем ответ
-    choices = result.get("choices")
-    if choices and len(choices) > 0:
-        message = choices[0].get("message", {})
-        answer = message.get("content", "Нет ответа.")
-    else:
-        answer = "Нет ответа от модели."
-
-except Exception as e:
-    print("Ошибка при запросе:", e)
-    answer = "Ошибка при запросе к OpenRouter."
+    try:
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+        result = response.json()
+        answer = result.get("choices", [{}])[0].get("message", {}).get("content", "Нет ответа.")
+    except Exception as e:
+        answer = "Ошибка при обращении к серверу."
 
     return jsonify({"answer": answer})
 
-
-def openrouter_api_key():
-    import os
-    return os.environ.get("OPENROUTER_API_KEY", "ключ_не_задан")
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
