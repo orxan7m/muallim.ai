@@ -4,54 +4,44 @@ import requests
 import os
 
 app = Flask(__name__)
-CORS(app)  # Включаем CORS для всех доменов
+CORS(app)
 
 @app.route("/ask", methods=["POST"])
 def ask():
     data = request.get_json()
-    question = data.get("question", "")
+    question = data.get("question")
     print("Вопрос от пользователя:", question)
 
     headers = {
-        "Authorization": f"Bearer {os.environ.get('OPENROUTER_API_KEY')}",
+        "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://orxan7m.github.io/muallim.ai/",
+        "HTTP-Referer": "https://orxan7m.github.io/muallim.ai",
         "X-Title": "Muallim.AI"
     }
 
     payload = {
-        "model": "deepseek-chat",
+        "model": "openai/gpt-4o",
         "messages": [
-            {
-                "role": "system",
-                "content": "Ты исламский советник. Отвечай строго по Корану, Сунне и мнениям достоверных учёных."
-            },
-            {
-                "role": "user",
-                "content": question
-            }
+            {"role": "system", "content": "Ты исламский советник. Отвечай строго по Корану и Сунне, ссылайся только на достоверные источники."},
+            {"role": "user", "content": question}
         ]
     }
 
-       try:
-        response = requests.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            headers=headers,
-            json=payload
-        )
+    try:
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
         response.raise_for_status()
         result = response.json()
+
+        print("Ответ от OpenRouter:", result)
 
         if "choices" in result:
             answer = result["choices"][0]["message"]["content"]
         else:
-            print("Ошибка в ответе:", result)
-            answer = "OpenRouter не вернул содержимое."
+            answer = "Ответ не получен от OpenRouter."
 
     except Exception as e:
         print("Ошибка при обращении к OpenRouter:", e)
         answer = "Ошибка при обращении к серверу."
-
 
     return jsonify({"answer": answer})
 
