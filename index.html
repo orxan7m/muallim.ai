@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Muallim.AI — Исламский AI-советник</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f2f2f2; }
+    h1 { color: #2e7d32; }
+    textarea, button { width: 100%; font-size: 16px; margin-top: 10px; }
+    #answer { white-space: pre-wrap; margin-top: 20px; background: #fff; padding: 10px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Muallim.AI</h1>
+  <p>Введите ваш вопрос об исламе:</p>
+  <textarea id="question" rows="5" placeholder="Пример: Можно ли читать Коран без омовения?"></textarea>
+  <button onclick="ask()">Спросить</button>
+  <div id="answer"></div>
+
+<script>
+  async function ask() {
+    const question = document.getElementById("question").value;
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer sk-...ТВОЙ_ТЕСТОВЫЙ_КЛЮЧ...",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [
+          {
+            role: "system",
+            content: "Ты исламский советник. Отвечай строго по Корану, Сунне и мнениям достоверных улемов. Если не уверен — скажи об этом."
+          },
+          {
+            role: "user",
+            content: question
+          }
+        ]
+      })
+    });
+
+    const data = await res.json();
+    const answer = data?.choices?.[0]?.message?.content || "Ошибка при получении ответа.";
+    document.getElementById("answer").innerText = answer;
+  }
+</script>
+</body>
+</html>
