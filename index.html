@@ -4,12 +4,38 @@
   <meta charset="UTF-8">
   <title>Muallim.AI — Исламский AI-советник</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 700px; margin: auto; background-color: #f4f4f4; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+      background-color: #f9f9f9;
+    }
     h1 { color: #2e7d32; }
-    textarea, button { width: 100%; font-size: 16px; margin-top: 10px; }
-    #answer { white-space: pre-wrap; margin-top: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 5px #ccc; }
-    button { background-color: #2e7d32; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; }
-    button:hover { background-color: #256828; }
+    textarea, button {
+      width: 100%;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    button {
+      background-color: #2e7d32;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #256828;
+    }
+    #answer {
+      white-space: pre-wrap;
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px #ccc;
+    }
   </style>
 </head>
 <body>
@@ -22,6 +48,7 @@
 <script>
   async function ask() {
     const question = document.getElementById("question").value;
+
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -29,11 +56,11 @@
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: "deepseek/deepseek-r1",
         messages: [
           {
             role: "system",
-            content: "Ты исламский советник. Отвечай строго на основе Корана, Сунны и мнений авторитетных улемов. Не выдумывай. Если не уверен — честно скажи об этом."
+            content: "Ты исламский советник. Отвечай строго на основе Корана, Сунны и мнений авторитетных улемов. Если не уверен — скажи, что не знаешь."
           },
           {
             role: "user",
@@ -44,7 +71,7 @@
     });
 
     const data = await res.json();
-    const answer = data?.choices?.[0]?.message?.content || "Ошибка: нет ответа.";
+    const answer = data?.choices?.[0]?.message?.content || "Ошибка: ответа нет.";
     document.getElementById("answer").innerText = answer;
   }
 </script>
