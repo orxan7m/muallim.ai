@@ -3,40 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Muallim.AI – Исламский Ассистент</title>
+  <title>Muallim.AI</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; background: #f6f6f6; }
+    input, textarea, button {
+      font-size: 1em; margin: 0.5em 0; padding: 0.5em; width: 100%;
+    }
+    #response { margin-top: 1em; white-space: pre-wrap; background: #fff; padding: 1em; border: 1px solid #ccc; }
+  </style>
 </head>
-<body style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px;">
-  <h2>🤖 Muallim.AI</h2>
-  <p>Задай вопрос об исламе, и ассистент ответит по Корану, Сунне и мнениям улемов.</p>
+<body>
 
-  <textarea id="question" rows="5" style="width: 100%;"></textarea><br><br>
-  <button onclick="ask()">Спросить</button>
+  <h1>Muallim.AI — Исламский AI Ассистент</h1>
 
-  <h3>Ответ:</h3>
-  <div id="answer" style="white-space: pre-wrap; background: #f0f0f0; padding: 10px; border-radius: 5px;"></div>
+  <textarea id="question" rows="4" placeholder="Задайте вопрос об исламе..."></textarea>
+  <button onclick="askQuestion()">Задать вопрос</button>
+
+  <div id="response"></div>
 
   <script>
-    async function ask() {
+    async function askQuestion() {
       const question = document.getElementById("question").value;
-      const answerDiv = document.getElementById("answer");
-      answerDiv.innerText = "⌛ Пожалуйста, подождите...";
+      document.getElementById("response").innerText = "Ожидание ответа...";
 
       try {
-        const response = await fetch("https://pertinentlightdominspector.orxan7m.repl.co/ask", {
+        const res = await fetch("https://muallim-backend.onrender.com/ask", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ question: question })
+          body: JSON.stringify({ question })
         });
 
-        const data = await response.json();
-        answerDiv.innerText = data.answer;
-      } catch (error) {
-        answerDiv.innerText = "⚠️ Ошибка при запросе к серверу.";
-        console.error(error);
+        const data = await res.json();
+        document.getElementById("response").innerText = data.answer;
+      } catch (err) {
+        document.getElementById("response").innerText = "Ошибка при обращении к серверу.";
+        console.error(err);
       }
     }
   </script>
+
 </body>
 </html>
