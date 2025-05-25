@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import requests
+import os
 
 app = Flask(__name__)
 
@@ -13,9 +14,9 @@ def ask():
     question = data.get("question")
 
     headers = {
-        "Authorization": "Bearer sk-c4f10cf5f9254ecf871f4f55fe8a7733",  # 🔐 Твой ключ от OpenRouter
+        "Authorization": "Bearer sk-c4f10cf5f9254ecf871f4f55fe8a7733",  # ← твой ключ
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://orxan7m.github.io/muallim.ai",        # Ссылка на фронт
+        "HTTP-Referer": "https://orxan7m.github.io/muallim.ai",
         "X-Title": "Muallim.AI"
     }
 
@@ -37,7 +38,13 @@ def ask():
         response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
         result = response.json()
         answer = result.get("choices", [{}])[0].get("message", {}).get("content", "Нет ответа.")
-    except:
-        answer = "Ошибка при запросе к OpenRouter."
+    except Exception as e:
+        answer = f"Ошибка при запросе: {str(e)}"
 
     return jsonify({"answer": answer})
+
+
+# 🔻 Обязательно добавь этот блок для Render
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Render передаёт порт через переменную окружения
+    app.run(host="0.0.0.0", port=port)
