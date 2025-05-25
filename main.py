@@ -10,37 +10,40 @@ CORS(app)
 def ask():
     data = request.get_json()
     question = data.get("question")
-    print("Вопрос от пользователя:", question)
+    print("Вопрос:", question)
 
     headers = {
-        "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://orxan7m.github.io/muallim.ai",
-        "X-Title": "Muallim.AI"
+        "Authorization": f"Bearer {os.getenv('DEEPSEEK_API_KEY')}",
+        "Content-Type": "application/json"
     }
 
     payload = {
-        "model": "openai/gpt-4o",
+        "model": "deepseek-chat",
         "messages": [
-            {"role": "system", "content": "Ты исламский советник. Отвечай строго по Корану и Сунне, ссылайся только на достоверные источники."},
-            {"role": "user", "content": question}
+            {
+                "role": "system",
+                "content": "Ты исламский советник. Отвечай строго по Корану и Сунне, ссылайся только на достоверные источники."
+            },
+            {
+                "role": "user",
+                "content": question
+            }
         ]
     }
 
     try:
-        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+        response = requests.post("https://api.deepseek.com/v1/chat/completions", headers=headers, json=payload)
         response.raise_for_status()
         result = response.json()
-
-        print("Ответ от OpenRouter:", result)
+        print("Ответ от DeepSeek:", result)
 
         if "choices" in result:
             answer = result["choices"][0]["message"]["content"]
         else:
-            answer = "Ответ не получен от OpenRouter."
+            answer = "Нет ответа от DeepSeek."
 
     except Exception as e:
-        print("Ошибка при обращении к OpenRouter:", e)
+        print("Ошибка:", e)
         answer = "Ошибка при обращении к серверу."
 
     return jsonify({"answer": answer})
