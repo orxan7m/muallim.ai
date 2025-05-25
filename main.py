@@ -33,7 +33,7 @@ def ask():
         ]
     }
 
-    try:
+       try:
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers=headers,
@@ -41,11 +41,17 @@ def ask():
         )
         response.raise_for_status()
         result = response.json()
-        print("Ответ от OpenRouter:", result)
-        answer = result.get("choices", [{}])[0].get("message", {}).get("content", "Нет ответа.")
+
+        if "choices" in result:
+            answer = result["choices"][0]["message"]["content"]
+        else:
+            print("Ошибка в ответе:", result)
+            answer = "OpenRouter не вернул содержимое."
+
     except Exception as e:
         print("Ошибка при обращении к OpenRouter:", e)
         answer = "Ошибка при обращении к серверу."
+
 
     return jsonify({"answer": answer})
 
