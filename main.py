@@ -1,15 +1,14 @@
+# main.py (backend)
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 import requests
 import os
 
 app = Flask(__name__)
-CORS(app)
 
 @app.route("/ask", methods=["POST"])
 def ask():
     data = request.get_json()
-    question = data.get("question", "")
+    question = data.get("question")
 
     headers = {
         "Authorization": f"Bearer {os.environ.get('OPENROUTER_API_KEY')}",
@@ -19,30 +18,22 @@ def ask():
     }
 
     payload = {
-        "model": "openai/gpt-4o",
+        "model": "deepseek-chat",
         "messages": [
-            {
-                "role": "system",
-                "content": "Ты исламский советник. Отвечай строго по Корану, Сунне и мнениям достоверных учёных."
-            },
-            {
-                "role": "user",
-                "content": question
-            }
+            {"role": "system", "content": "Ты исламский советник. Отвечай строго по Корану, Сунне и мнениям достоверных учёных."},
+            {"role": "user", "content": question}
         ]
     }
 
     try:
         response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
-        response.raise_for_status()
         result = response.json()
-
-        message = result.get("choices", [{}])[0].get("message", {}).get("content", "Нет ответа от модели.")
-        return jsonify({"answer": message})
-
+        answer = result.get("choices", [{}])[0].get("message", {}).get("content", "Нет ответа.")
     except Exception as e:
-        print("Ошибка:", e)
-        return jsonify({"answer": "Ошибка при обращении к серверу."})
+        answer = "Ошибка при запросе к OpenRouter."
+
+    return jsonify({"answer": answer})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
