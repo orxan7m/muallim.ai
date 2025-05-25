@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Islam AI</title>
+</head>
+<body>
+  <h2>Задай вопрос об исламе</h2>
+  <textarea id="question" rows="4" cols="50"></textarea><br>
+  <button onclick="askAI()">Спросить</button>
+  <p id="answer"></p>
+
+<script>
+  async function askAI() {
+    const question = document.getElementById("question").value;
+
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer ВСТАВЬ_ТУТ_ТВОЙ_API_КЛЮЧ",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [
+          {
+            role: "system",
+            content: "Ты исламский советник. Отвечай строго на основе Корана, Сунны и мнений достоверных улемов."
+          },
+          {
+            role: "user",
+            content: question
+          }
+        ]
+      })
+    });
+
+    const data = await res.json();
+    const answer = data.choices?.[0]?.message?.content || "Ошибка или пустой ответ";
+    document.getElementById("answer").innerText = answer;
+  }
+</script>
+</body>
+</html>
