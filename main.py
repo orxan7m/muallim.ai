@@ -1,17 +1,18 @@
-# main.py (backend)
 from flask import Flask, request, jsonify
-import requests
 import os
+import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/ask", methods=["POST"])
 def ask():
     data = request.get_json()
-    question = data.get("question")
+    question = data.get("question", "")
 
     headers = {
-        "Authorization": f"Bearer {os.environ.get('OPENROUTER_API_KEY')}",
+        "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
         "Content-Type": "application/json",
         "HTTP-Referer": "https://orxan7m.github.io/muallim.ai/",
         "X-Title": "Muallim.AI"
@@ -20,8 +21,14 @@ def ask():
     payload = {
         "model": "deepseek-chat",
         "messages": [
-            {"role": "system", "content": "Ты исламский советник. Отвечай строго по Корану, Сунне и мнениям достоверных учёных."},
-            {"role": "user", "content": question}
+            {
+                "role": "system",
+                "content": "Ты исламский советник. Отвечай строго по Корану, Сунне и мнениям достоверных учёных."
+            },
+            {
+                "role": "user",
+                "content": question
+            }
         ]
     }
 
@@ -30,10 +37,6 @@ def ask():
         result = response.json()
         answer = result.get("choices", [{}])[0].get("message", {}).get("content", "Нет ответа.")
     except Exception as e:
-        answer = "Ошибка при запросе к OpenRouter."
+        answer = "Ошибка при обращении к OpenRouter."
 
     return jsonify({"answer": answer})
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
