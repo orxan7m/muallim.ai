@@ -56,7 +56,7 @@
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-r1",
+        model: "deepseek/deepseek-r1", // ← или замени на "deepseek-chat"
         messages: [
           {
             role: "system",
@@ -71,8 +71,12 @@
     });
 
     const data = await res.json();
-    const answer = data?.choices?.[0]?.message?.content || "Ошибка: ответа нет.";
-    document.getElementById("answer").innerText = answer;
+
+    // 👇 Показываем весь ответ API в консоли
+    console.log("Ответ API:", data);
+
+    const answer = data?.choices?.[0]?.message?.content;
+    document.getElementById("answer").innerText = answer || "Ошибка: ответа нет.";
   }
 </script>
 </body>
