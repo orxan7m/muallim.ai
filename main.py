@@ -40,16 +40,24 @@ def ask():
         ]
     }
 
-    try:
-        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
-        result = response.json()
-        print("===> Ответ от OpenRouter:")
-        print(result)  # 🔍 это важно для отладки
+try:
+    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+    result = response.json()
+    
+    print("=== Ответ от OpenRouter ===")
+    print(result)  # <== ВАЖНО: сюда посмотри в логах Render!
 
-        answer = result.get("choices", [{}])[0].get("message", {}).get("content", "Нет ответа.")
-    except Exception as e:
-        print("Ошибка:", e)
-        answer = "Ошибка при запросе к OpenRouter."
+    # Надежно получаем ответ
+    choices = result.get("choices")
+    if choices and len(choices) > 0:
+        message = choices[0].get("message", {})
+        answer = message.get("content", "Нет ответа.")
+    else:
+        answer = "Нет ответа от модели."
+
+except Exception as e:
+    print("Ошибка при запросе:", e)
+    answer = "Ошибка при запросе к OpenRouter."
 
     return jsonify({"answer": answer})
 
